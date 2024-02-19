@@ -1,4 +1,4 @@
- #include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
 #include <cstdlib> // For random number generation
@@ -83,10 +83,23 @@ int main() {
 
     sf::Clock clock;
     int score = 0;
+    sf::Time scoreUpdateInterval = sf::seconds(1); // Update score every second
+    sf::Time timeSinceLastScoreUpdate = sf::Time::Zero;
+
+    sf::Font font;
+    if (!font.loadFromFile("arial.ttf")) {
+        std::cerr << "Failed to load font." << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    sf::Text scoreText;
+    scoreText.setFont(font);
+    scoreText.setCharacterSize(24);
+    scoreText.setFillColor(sf::Color::White);
+    scoreText.setPosition(10.f, 10.f); // Position on the left side of the window
 
     while (window.isOpen()) {
         sf::Time elapsed = clock.restart();
-        score += elapsed.asSeconds() * 10;
 
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -104,35 +117,69 @@ int main() {
         }
 
         // Move meteors downwards
-        for (auto& meteor : meteors) {
-            meteor.shape.move(0, 3); // Adjust the meteor speed as needed
+        for (auto it = meteors.begin(); it != meteors.end();) {
+            it->shape.move(0, 3); // Adjust the meteor speed as needed
 
-            // Check collision with cursor
-            if (meteor.getBounds().intersects(cursor.getGlobalBounds())) {
-                showGameOver(window);
-                // Wait for a moment to let the player see the lose screen before closing
-                sf::sleep(sf::seconds(2));
-                window.close();
+            // Check if the meteor is dodged
+            if (it->shape.getPosition().y >= window.getSize().y) {
+                score += 10; // Increment score by 10 for each dodged meteor
+                it = meteors.erase(it); // Remove the dodged meteor from the vector
+            }
+            else {
+                // Check collision with cursor
+                if (it->getBounds().intersects(cursor.getGlobalBounds())) {
+                    showGameOver(window);
+                    // Wait for a moment to let the player see the lose screen before closing
+                    sf::sleep(sf::seconds(2));
+                    window.close();
+                }
+                else {
+                    ++it;
+                }
             }
         }
 
         // Move spaceship with cursor position
         cursor.setPosition(static_cast<float>(sf::Mouse::getPosition(window).x), static_cast<float>(sf::Mouse::getPosition(window).y));
 
-        window.clear(sf::Color::White);
+        // Update time since last score update
+        timeSinceLastScoreUpdate += elapsed;
 
-        // Draw your game objects here
-        window.draw(sprite);
+        // Check if it's time to update the score
+        if (timeSinceLastScoreUpdate >= scoreUpdateInterval) {
+            // Update and draw the score
+            scoreText.setString("Score: " + std::to_string(score));
+            window.clear(sf::Color::White);
+            window.draw(sprite);
 
-        // Draw meteors
-        for (const auto& meteor : meteors) {
-            window.draw(meteor.shape);
+            // Draw meteors
+            for (const auto& meteor : meteors) {
+                window.draw(meteor.shape);
+            }
+
+            // Draw the custom cursor
+            window.draw(cursor);
+            window.draw(scoreText);
+            window.display();
+
+            timeSinceLastScoreUpdate -= scoreUpdateInterval; // Reset time since last update
         }
+        else {
+            window.clear(sf::Color::White);
 
-        // Draw the custom cursor
-        window.draw(cursor);
+            // Draw your game objects here
+            window.draw(sprite);
 
-        window.display();
+            // Draw meteors
+            for (const auto& meteor : meteors) {
+                window.draw(meteor.shape);
+            }
+
+            // Draw the custom cursor
+            window.draw(cursor);
+            window.draw(scoreText);
+            window.display();
+        }
     }
 
     std::cout << "Score: " << score << std::endl;
