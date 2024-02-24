@@ -42,7 +42,7 @@ void showGameOver(sf::RenderWindow& window) {
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Test window");
     window.setFramerateLimit(60);
-
+    bool meteorMythAchieved = false;
     sf::Sprite sprite;
     sf::Texture texture;
     sf::Texture cursorTexture;
@@ -55,7 +55,7 @@ int main() {
     sf::Sprite cursor(cursorTexture);
 
     // Adjust the size of the cursor image
-    float scaleFactor = 0.3f; // Change this value to adjust the size
+    float scaleFactor = 0.2f; // Change this value to adjust the size
     cursor.setScale(scaleFactor, scaleFactor);
 
     // Hide the default mouse cursor
@@ -64,7 +64,7 @@ int main() {
     // Load the texture from the file
     if (!texture.loadFromFile("Space.jpg")) {
         std::cerr << "Failed to load texture." << std::endl;
-        return 1; // Return an error code
+        return EXIT_FAILURE;
     }
 
     // Set the texture for the sprite
@@ -180,9 +180,52 @@ int main() {
             window.draw(scoreText);
             window.display();
         }
+
+        // Check if score reaches 300
+        if (score >= 100 && !meteorMythAchieved) {
+            meteorMythAchieved = true;
+
+            // Display the message
+            sf::Text mythText("You achieved the Meteor Myth", font, 30);
+            mythText.setFillColor(sf::Color::Green);
+            mythText.setStyle(sf::Text::Italic);
+            mythText.setPosition(window.getSize().x / 2 - mythText.getGlobalBounds().width / 2, 50);
+
+            // Display the longer text below the first message
+            std::string longTextString = "In the ancient myth of meteor formation, celestial artisans forged these luminous stones from the remnants of dying stars, infusing them with cosmic energy. Guided by the hand of fate, these ethereal messengers traverse the vast expanse of space, carrying the secrets of creation and the mysteries of the universe. As they journey, meteors illuminate the night sky, weaving tales of celestial wonder and shaping the destiny of worlds with their radiant presence.";
+            sf::Text longText;
+            longText.setFont(font);
+            longText.setCharacterSize(12);
+            longText.setFillColor(sf::Color::White);
+            longText.setStyle(sf::Text::Regular);
+            longText.setString(longTextString);
+
+            // Calculate position for the longer text
+            float textX = 20; // X-coordinate
+            float textY = mythText.getPosition().y + mythText.getGlobalBounds().height + 20; // Y-coordinate below the first message with spacing
+            longText.setPosition(textX, textY);
+
+            // Wrap the long text
+            sf::FloatRect textRect = longText.getLocalBounds();
+            float maxWidth = window.getSize().x - 2 * textX;
+            if (textRect.width > maxWidth) {
+                std::string textString = longText.getString();
+                std::size_t pos = textString.find_last_of(" ", static_cast<std::size_t>(maxWidth));
+                if (pos != std::string::npos) {
+                    textString.insert(pos + 1, "\n");
+                    longText.setString(textString);
+                }
+            }
+
+            window.clear(sf::Color::Black); // Clear the window
+            window.draw(mythText); // Draw the first message
+            window.draw(longText); // Draw the longer text
+            window.display();
+            sf::sleep(sf::seconds(2)); // Pause for 2 seconds
+            break;
+        }
     }
 
     std::cout << "Score: " << score << std::endl;
-
     return 0;
 }
