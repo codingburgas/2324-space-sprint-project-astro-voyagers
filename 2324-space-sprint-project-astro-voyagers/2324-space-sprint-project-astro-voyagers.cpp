@@ -1,16 +1,17 @@
 #include <SFML/Graphics.hpp>
+using namespace std;
 #include <iostream>
-#include <vector>
+#include <vector> // For functions
 #include <cstdlib> // For random number generation
 #include <ctime>   // For seeding random number generator
 
 class Meteor {
 public:
-    sf::CircleShape shape;
+    sf::CircleShape shape; // The shape of the meteors
 
     Meteor(float radius) {
         shape.setRadius(radius);
-        shape.setFillColor(sf::Color::Red); // Adjust color as needed
+        shape.setFillColor(sf::Color::Red); // The color of the meteors
     }
 
     void setPosition(float x, float y) {
@@ -24,32 +25,32 @@ public:
 
 void showGameOver(sf::RenderWindow& window) {
     sf::Font font;
-    if (!font.loadFromFile("arial.ttf")) {
+    if (!font.loadFromFile("arial.ttf")) { //Set the font
         std::cerr << "Failed to load font." << std::endl;
         return;
     }
 
-    sf::Text text("YOU LOSE!", font, 50);
+    sf::Text text("YOU LOSE!", font, 50); // Create a text object for the "YOU LOSE!" message with a font size of 50.
     text.setFillColor(sf::Color::Red);
     text.setStyle(sf::Text::Bold);
     text.setPosition(window.getSize().x / 2 - text.getGlobalBounds().width / 2, window.getSize().y / 2 - text.getGlobalBounds().height / 2);
 
-    window.clear(sf::Color::White);
+    window.clear(sf::Color::White); // This clears the window with a white background.
     window.draw(text);
-    window.display();
+    window.display();  // Display the updated window.
 }
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Test window");
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(60); // Limit the framerate to 60 frames per second
     bool meteorMythAchieved = false;
     bool gameOver = false;
     sf::Sprite sprite;
-    sf::Texture texture;
-    sf::Texture cursorTexture;
+    sf::Texture texture; // Loading a texture
+    sf::Texture cursorTexture; // Texture for the cursor
 
-    if (!cursorTexture.loadFromFile("RocketCursor.png")) {
-        return EXIT_FAILURE;
+    if (!cursorTexture.loadFromFile("RocketCursor.png")) {  // Load the cursor texture from the file "RocketCursor.png".
+        return EXIT_FAILURE; // Return EXIT_FAILURE if loading the cursor texture fails.
     }
 
     // Create a sprite for the cursor
@@ -95,7 +96,7 @@ int main() {
 
     sf::Text scoreText;
     scoreText.setFont(font);
-    scoreText.setCharacterSize(24);
+    scoreText.setCharacterSize(24); //Size of the Character
     scoreText.setFillColor(sf::Color::White);
     scoreText.setPosition(10.f, 10.f); // Position on the left side of the window
 
@@ -107,7 +108,7 @@ int main() {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-        }
+        } // Loop that continues to run as long as the window is open and the game is not marked as over.
 
         // Spawn meteors at random positions on the top of the screen
         if (rand() % 50 < 2) { // Adjust this probability to control meteor spawning frequency
@@ -230,6 +231,6 @@ int main() {
         }
     }
 
-    std::cout << "Score: " << score << std::endl;
+    cout << "Score: " << score << endl; // Outputs the score
     return 0;
 }
