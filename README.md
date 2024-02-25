@@ -28,13 +28,13 @@ Players pilot spacecraft through uncharted space, engaging in battles with hosti
    <br>
 
    ## 🚀 Languages and tools:
-   <img src="https://img.icons8.com/color/48/000000/c-plus-plus-logo.png"/>
+   <a><img src="https://img.icons8.com/color/48/000000/c-plus-plus-logo.png"/></a>
    <a href="https://visualstudio.microsoft.com/"><img src="https://img.icons8.com/fluency/48/000000/visual-studio.png" alt="Visual Studio 2019"/></a>
    <a href="https://www.microsoft.com/en-ww/microsoft-365/word"><img src="https://img.icons8.com/fluency/48/000000/microsoft-word-2019.png" alt="MS Word logo" width=48px /></a>
     <a href="https://www.microsoft.com/en-us/microsoft-365/powerpoint"><img src="https://img.icons8.com/fluency/48/000000/microsoft-powerpoint-2019.png" alt="MS PowerPoint logo" width=48px />
     <a href="https://git-scm.com/"><img src="https://img.icons8.com/color/48/000000/git.png" alt="Git"/></a>
-    <img src="https://www.sfml-dev.org/download/goodies/sfml-icon-big.png"  width=48px>
-    <img src="https://static-00.iconduck.com/assets.00/github-icon-2048x1988-jzvzcf2t.png" width=48px>
+    <a><img src="https://www.sfml-dev.org/download/goodies/sfml-icon-big.png"  width=48px></a>
+    <a><img src="https://static-00.iconduck.com/assets.00/github-icon-2048x1988-jzvzcf2t.png" width=48px></a>
    <br>
 
    ## 🎬 Demo of the project
