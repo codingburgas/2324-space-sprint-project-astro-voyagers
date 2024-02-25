@@ -43,6 +43,7 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Test window");
     window.setFramerateLimit(60);
     bool meteorMythAchieved = false;
+    bool gameOver = false;
     sf::Sprite sprite;
     sf::Texture texture;
     sf::Texture cursorTexture;
@@ -98,7 +99,7 @@ int main() {
     scoreText.setFillColor(sf::Color::White);
     scoreText.setPosition(10.f, 10.f); // Position on the left side of the window
 
-    while (window.isOpen()) {
+    while (window.isOpen() && !gameOver) {
         sf::Time elapsed = clock.restart();
 
         sf::Event event;
@@ -131,7 +132,8 @@ int main() {
                     showGameOver(window);
                     // Wait for a moment to let the player see the lose screen before closing
                     sf::sleep(sf::seconds(2));
-                    window.close();
+                    gameOver = true;
+                    // window.close(); // Remove this line
                 }
                 else {
                     ++it;
@@ -181,7 +183,7 @@ int main() {
             window.display();
         }
 
-        // Check if score reaches 300
+        // Check if score reaches 100
         if (score >= 100 && !meteorMythAchieved) {
             meteorMythAchieved = true;
 
@@ -190,6 +192,9 @@ int main() {
             mythText.setFillColor(sf::Color::Green);
             mythText.setStyle(sf::Text::Italic);
             mythText.setPosition(window.getSize().x / 2 - mythText.getGlobalBounds().width / 2, 50);
+
+            // Adjust Y-coordinate to avoid overlap
+            float textY = mythText.getPosition().y + mythText.getGlobalBounds().height + 50; // Increased spacing
 
             // Display the longer text below the first message
             std::string longTextString = "In the ancient myth of meteor formation, celestial artisans forged these luminous stones from the remnants of dying stars, infusing them with cosmic energy. Guided by the hand of fate, these ethereal messengers traverse the vast expanse of space, carrying the secrets of creation and the mysteries of the universe. As they journey, meteors illuminate the night sky, weaving tales of celestial wonder and shaping the destiny of worlds with their radiant presence.";
@@ -202,7 +207,6 @@ int main() {
 
             // Calculate position for the longer text
             float textX = 20; // X-coordinate
-            float textY = mythText.getPosition().y + mythText.getGlobalBounds().height + 20; // Y-coordinate below the first message with spacing
             longText.setPosition(textX, textY);
 
             // Wrap the long text
@@ -222,7 +226,7 @@ int main() {
             window.draw(longText); // Draw the longer text
             window.display();
             sf::sleep(sf::seconds(2)); // Pause for 2 seconds
-            break;
+            // continue; // Remove the continue statement
         }
     }
 
