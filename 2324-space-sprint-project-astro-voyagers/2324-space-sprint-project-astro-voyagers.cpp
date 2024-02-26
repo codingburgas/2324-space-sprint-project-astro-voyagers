@@ -120,11 +120,12 @@ int main() {
             }
             else {
                 if (it->getBounds().intersects(cursor.getGlobalBounds())) {
-                    showGameOver(window, "Game Over");
+                    showGameOver(window, "Game Over Score: " + std::to_string(score));
 
                     sf::sleep(sf::seconds(2));
                     gameOver = true;
                 }
+
                 else {
                     ++it;
                 }
@@ -171,7 +172,7 @@ int main() {
 
         // Check if score reaches 100
         // Check if score reaches 100
-        if (score >= 100 && !meteorMythAchieved) {
+        if (score >= 250 && !meteorMythAchieved) {
             meteorMythAchieved = true;
 
             // Create a new window for displaying the myth text
@@ -230,7 +231,7 @@ int main() {
             }
         }
 
-        if (score >= 250 && !EarthMythAchived) {
+        if (score >= 500 && !EarthMythAchived) {
             EarthMythAchived = true;
 
             // Create a new window for displaying the myth text
@@ -289,7 +290,7 @@ int main() {
             }
         }
 
-        if (score >= 500 && !SunMythAchieved) {
+        if (score >= 750 && !SunMythAchieved) {
             SunMythAchieved = true;
 
             // Create a new window for displaying the myth text
@@ -347,6 +348,108 @@ int main() {
                 endWindow.display();
             }
         }
+        if (score >= 1000 && !UniversMythAchieved) {
+            UniversMythAchieved = true;
+
+            // Create a new window for displaying the myth text
+            sf::RenderWindow endWindow(sf::VideoMode(800, 600), "End Window");
+
+            // Create the text object for the new myth unlocked message
+            sf::Text unlockedText;
+            unlockedText.setFont(font);
+            unlockedText.setCharacterSize(24);
+            unlockedText.setFillColor(sf::Color::White);
+            unlockedText.setStyle(sf::Text::Regular);
+            unlockedText.setString("New Myth Unlocked: Univers Myth");
+            // Position the new myth unlocked message at the top center of the window
+            sf::FloatRect unlockedBounds = unlockedText.getLocalBounds();
+            unlockedText.setPosition((endWindow.getSize().x - unlockedBounds.width) / 2.f, 20.f);
+
+            // Create the text object for the myth text
+            sf::Text mythText;
+            mythText.setFont(font);
+            mythText.setCharacterSize(20);
+            mythText.setFillColor(sf::Color::White);
+            mythText.setStyle(sf::Text::Regular);
+            mythText.setString("In the ageless expanse, the stars whispered tales of creation. The Great Cosmic Weaver spun galaxies from threads of light, each constellation a chapter in the celestial chronicle. Planets danced to the rhythm of cosmic symphonies, while comets streaked across the canvas of eternity, painting the universe with wonder.");
+
+            // Set maximum width for text wrapping
+            float maxWidth = 780.f; // Adjust according to your window width
+            mythText.setPosition(10.f, 60.f); // Set initial position below the unlocked message
+
+            // Split the text into lines that fit within the maximum width
+            std::string originalString = mythText.getString();
+            std::string wrappedString;
+            sf::Text tempText = mythText;
+            unsigned int charCount = 0;
+            for (char& c : originalString) {
+                tempText.setString(wrappedString + c);
+                if (tempText.getLocalBounds().width > maxWidth) {
+                    wrappedString += '\n';
+                }
+                wrappedString += c;
+            }
+            mythText.setString(wrappedString);
+
+            // Create a paragraph for additional text
+            sf::Text additionalText;
+            additionalText.setFont(font);
+            additionalText.setCharacterSize(22);
+            additionalText.setFillColor(sf::Color::White);
+            additionalText.setStyle(sf::Text::Regular);
+            additionalText.setString("You are now free to explore space alone as our Professional Astro Voyager.");
+
+            // Set maximum width for text wrapping
+            additionalText.setPosition(10.f, mythText.getPosition().y + mythText.getGlobalBounds().height + 20.f);
+
+            sf::Clock displayTimer;
+            bool displayWindow = true;
+
+            while (displayWindow && endWindow.isOpen()) {
+                sf::Time elapsedTime = displayTimer.getElapsedTime();
+                if (elapsedTime >= sf::seconds(1)) {
+                    displayWindow = false;
+                    endWindow.close();
+                }
+
+                sf::Event event;
+                while (endWindow.pollEvent(event)) {
+                    if (event.type == sf::Event::Closed) {
+                        endWindow.close();
+                    }
+                }
+
+                endWindow.clear();
+                endWindow.draw(unlockedText); // Draw the new myth unlocked message
+                endWindow.draw(mythText); // Draw the myth text below it
+                endWindow.draw(additionalText); // Draw the additional paragraph
+                endWindow.display();
+            }
+
+            // Open new window with "You've won" message displayed in green
+            sf::RenderWindow winWindow(sf::VideoMode(800, 600), "Win Screen");
+            sf::Text winText("    You've won!", font, 50);
+            winText.setFillColor(sf::Color::Green);
+            winText.setStyle(sf::Text::Bold);
+            winText.setPosition(200.f, 250.f);
+
+            while (winWindow.isOpen()) {
+                sf::Event event;
+                while (winWindow.pollEvent(event)) {
+                    if (event.type == sf::Event::Closed) {
+                        winWindow.close();
+                    }
+                }
+
+                winWindow.clear(sf::Color::White);
+                winWindow.draw(winText);
+                winWindow.display();
+            }
+            break;
+        }
+
+
+
     }
 
     std::cout << "Score: " << score << std::endl;
@@ -354,7 +457,6 @@ int main() {
 }
 
 
-    
 
 
 
