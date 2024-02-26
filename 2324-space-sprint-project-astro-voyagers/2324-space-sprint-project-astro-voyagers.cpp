@@ -1,16 +1,16 @@
-#include <SFML/Graphics.hpp>
+﻿#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
-#include <cstdlib> // For random number generation
-#include <ctime>   // For seeding random number generator
+#include <cstdlib>
+#include <ctime>
 
 class Meteor {
 public:
     sf::CircleShape shape;
 
-    Meteor(float radius) {
+    Meteor(float radius, const sf::Texture& texture) {
         shape.setRadius(radius);
-        shape.setFillColor(sf::Color::Red); // Adjust color as needed
+        shape.setTexture(&texture); // Apply texture to the meteor's shape
     }
 
     void setPosition(float x, float y) {
@@ -21,15 +21,14 @@ public:
         return shape.getGlobalBounds();
     }
 };
-
-void showGameOver(sf::RenderWindow& window) {
+void showGameOver(sf::RenderWindow& window, const std::string& message) {
     sf::Font font;
     if (!font.loadFromFile("arial.ttf")) {
         std::cerr << "Failed to load font." << std::endl;
         return;
     }
 
-    sf::Text text("YOU LOSE!", font, 50);
+    sf::Text text(message, font, 50);
     text.setFillColor(sf::Color::Red);
     text.setStyle(sf::Text::Bold);
     text.setPosition(window.getSize().x / 2 - text.getGlobalBounds().width / 2, window.getSize().y / 2 - text.getGlobalBounds().height / 2);
@@ -39,11 +38,15 @@ void showGameOver(sf::RenderWindow& window) {
     window.display();
 }
 
+
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Test window");
     window.setFramerateLimit(60);
-    bool meteorMythAchieved = false;
     bool gameOver = false;
+    bool UniversMythAchieved = false;
+    bool SunMythAchieved = false;
+    bool EarthMythAchived = false;
+    bool meteorMythAchieved = false;
     sf::Sprite sprite;
     sf::Texture texture;
     sf::Texture cursorTexture;
@@ -52,39 +55,37 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    // Create a sprite for the cursor
     sf::Sprite cursor(cursorTexture);
-
-    // Adjust the size of the cursor image
-    float scaleFactor = 0.2f; // Change this value to adjust the size
+    float scaleFactor = 0.2f;
     cursor.setScale(scaleFactor, scaleFactor);
 
     // Hide the default mouse cursor
     window.setMouseCursorVisible(false);
 
-    // Load the texture from the file
-    if (!texture.loadFromFile("Space.jpg")) {
+    if (!texture.loadFromFile("Background.png")) {
         std::cerr << "Failed to load texture." << std::endl;
         return EXIT_FAILURE;
     }
 
-    // Set the texture for the sprite
     sprite.setTexture(texture);
-
-    // Scale the sprite to fill the window
     sprite.setScale(
         static_cast<float>(window.getSize().x) / static_cast<float>(texture.getSize().x),
         static_cast<float>(window.getSize().y) / static_cast<float>(texture.getSize().y)
     );
 
-    std::vector<Meteor> meteors; // Vector to store meteor objects
 
-    // Seed the random number generator
+    std::vector<Meteor> meteors;
+    sf::Texture meteorTexture;
+    if (!meteorTexture.loadFromFile("MeteorTexture.png")) {
+        std::cerr << "Failed to load meteor texture." << std::endl;
+        return EXIT_FAILURE;
+    }
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
 
     sf::Clock clock;
     int score = 0;
-    sf::Time scoreUpdateInterval = sf::seconds(1); // Update score every second
+    sf::Time scoreUpdateInterval = sf::seconds(1);
     sf::Time timeSinceLastScoreUpdate = sf::Time::Zero;
 
     sf::Font font;
@@ -95,9 +96,9 @@ int main() {
 
     sf::Text scoreText;
     scoreText.setFont(font);
-    scoreText.setCharacterSize(24);
+    scoreText.setCharacterSize(30);
     scoreText.setFillColor(sf::Color::White);
-    scoreText.setPosition(10.f, 10.f); // Position on the left side of the window
+    scoreText.setPosition(10.f, 10.f);
 
     while (window.isOpen() && !gameOver) {
         sf::Time elapsed = clock.restart();
@@ -109,127 +110,356 @@ int main() {
             }
         }
 
-        // Spawn meteors at random positions on the top of the screen
-        if (rand() % 50 < 2) { // Adjust this probability to control meteor spawning frequency
-            float radius = static_cast<float>(rand() % 40) + 20; // Random radius between 20 and 60
-            Meteor meteor(radius);
+        if (rand() % 50 < 2) {
+            float radius = static_cast<float>(rand() % 40) + 20;
+            Meteor meteor(radius, meteorTexture);
             meteor.setPosition(static_cast<float>(rand() % window.getSize().x), -radius);
             meteors.push_back(meteor);
         }
 
-        // Move meteors downwards
         for (auto it = meteors.begin(); it != meteors.end();) {
-            it->shape.move(0, 3); // Adjust the meteor speed as needed
+            it->shape.move(0, 3);
 
-            // Check if the meteor is dodged
             if (it->shape.getPosition().y >= window.getSize().y) {
-                score += 10; // Increment score by 10 for each dodged meteor
-                it = meteors.erase(it); // Remove the dodged meteor from the vector
+                score += 10;
+                it = meteors.erase(it);
             }
             else {
-                // Check collision with cursor
                 if (it->getBounds().intersects(cursor.getGlobalBounds())) {
-                    showGameOver(window);
-                    // Wait for a moment to let the player see the lose screen before closing
+                    showGameOver(window, "Game Over Score: " + std::to_string(score));
+
                     sf::sleep(sf::seconds(2));
                     gameOver = true;
-                    // window.close(); // Remove this line
                 }
+
                 else {
                     ++it;
                 }
             }
         }
 
-        // Move spaceship with cursor position
-        cursor.setPosition(static_cast<float>(sf::Mouse::getPosition(window).x), static_cast<float>(sf::Mouse::getPosition(window).y));
+            // Constrain cursor within window bounds
+            sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+            if (mousePos.x < 0) mousePos.x = 0;
+            if (mousePos.x >= window.getSize().x) mousePos.x = window.getSize().x - 1;
+            if (mousePos.y < 0) mousePos.y = 0;
+            if (mousePos.y >= window.getSize().y) mousePos.y = window.getSize().y - 1;
+            cursor.setPosition(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
 
-        // Update time since last score update
-        timeSinceLastScoreUpdate += elapsed;
+            timeSinceLastScoreUpdate += elapsed;
 
-        // Check if it's time to update the score
-        if (timeSinceLastScoreUpdate >= scoreUpdateInterval) {
-            // Update and draw the score
-            scoreText.setString("Score: " + std::to_string(score));
-            window.clear(sf::Color::White);
-            window.draw(sprite);
+            if (timeSinceLastScoreUpdate >= scoreUpdateInterval) {
+                scoreText.setString("Score: " + std::to_string(score));
+                window.clear(sf::Color::White);
+                window.draw(sprite);
 
-            // Draw meteors
-            for (const auto& meteor : meteors) {
-                window.draw(meteor.shape);
+                for (const auto& meteor : meteors) {
+                    window.draw(meteor.shape);
+                }
+
+                window.draw(cursor);
+                window.draw(scoreText);
+                window.display();
+
+                timeSinceLastScoreUpdate -= scoreUpdateInterval;
+            }
+            else {
+                window.clear(sf::Color::White);
+                window.draw(sprite);
+
+                for (const auto& meteor : meteors) {
+                    window.draw(meteor.shape);
+                }
+
+                window.draw(cursor);
+                window.draw(scoreText);
+                window.display();
             }
 
-            // Draw the custom cursor
-            window.draw(cursor);
-            window.draw(scoreText);
-            window.display();
+            // Check if score reaches 100
+            // Check if score reaches 100
+            if (score >= 250 && !meteorMythAchieved) {
+                meteorMythAchieved = true;
 
-            timeSinceLastScoreUpdate -= scoreUpdateInterval; // Reset time since last update
-        }
-        else {
-            window.clear(sf::Color::White);
+                // Create a new window for displaying the myth text
+                sf::RenderWindow endWindow(sf::VideoMode(800, 600), "End Window");
 
-            // Draw your game objects here
-            window.draw(sprite);
+                // Create the text object for the new myth unlocked message
+                sf::Text unlockedText;
+                unlockedText.setFont(font);
+                unlockedText.setCharacterSize(24);
+                unlockedText.setFillColor(sf::Color::White);
+                unlockedText.setStyle(sf::Text::Regular);
+                unlockedText.setString("New Myth Unlocked: Meteor Myth");
+                // Position the new myth unlocked message at the top center of the window
+                sf::FloatRect unlockedBounds = unlockedText.getLocalBounds();
+                unlockedText.setPosition((endWindow.getSize().x - unlockedBounds.width) / 2.f, 20.f);
 
-            // Draw meteors
-            for (const auto& meteor : meteors) {
-                window.draw(meteor.shape);
-            }
+                // Create the text object for the myth text
+                sf::Text mythText;
+                mythText.setFont(font);
+                mythText.setCharacterSize(20);
+                mythText.setFillColor(sf::Color::White);
+                mythText.setStyle(sf::Text::Regular);
+                mythText.setString("In the ancient myths, meteors are hailed as celestial messengers, born from the fiery remnants of dying stars. Crafted by the divine hand, these luminous stones traverse the expanse of the cosmos, carrying with them the secrets of creation and the mysteries of the universe. Their radiant glow illuminates the night sky, weaving tales of cosmic wonder and shaping the destiny of worlds with their ethereal presence. In the tapestry of the heavens, meteors are revered as harbingers of divine wisdom, forever etched in the celestial symphony of existence.");
 
-            // Draw the custom cursor
-            window.draw(cursor);
-            window.draw(scoreText);
-            window.display();
-        }
+                // Set maximum width for text wrapping
+                float maxWidth = 780.f; // Adjust according to your window width
+                mythText.setPosition(10.f, 60.f); // Set initial position below the unlocked message
 
-        // Check if score reaches 100
-        if (score >= 100 && !meteorMythAchieved) {
-            meteorMythAchieved = true;
+                // Split the text into lines that fit within the maximum width
+                std::string originalString = mythText.getString();
+                std::string wrappedString;
+                sf::Text tempText = mythText;
+                unsigned int charCount = 0;
+                for (char& c : originalString) {
+                    tempText.setString(wrappedString + c);
+                    if (tempText.getLocalBounds().width > maxWidth) {
+                        wrappedString += '\n';
+                    }
+                    wrappedString += c;
+                }
+                mythText.setString(wrappedString);
 
-            // Display the message
-            sf::Text mythText("You achieved the Meteor Myth", font, 30);
-            mythText.setFillColor(sf::Color::Green);
-            mythText.setStyle(sf::Text::Italic);
-            mythText.setPosition(window.getSize().x / 2 - mythText.getGlobalBounds().width / 2, 50);
+                // Keep the window open until the user closes it
+                while (endWindow.isOpen()) {
+                    sf::Event event;
+                    while (endWindow.pollEvent(event)) {
+                        if (event.type == sf::Event::Closed) {
+                            endWindow.close();
+                        }
+                    }
 
-            // Adjust Y-coordinate to avoid overlap
-            float textY = mythText.getPosition().y + mythText.getGlobalBounds().height + 50; // Increased spacing
-
-            // Display the longer text below the first message
-            std::string longTextString = "In the ancient myth of meteor formation, celestial artisans forged these luminous stones from the remnants of dying stars, infusing them with cosmic energy. Guided by the hand of fate, these ethereal messengers traverse the vast expanse of space, carrying the secrets of creation and the mysteries of the universe. As they journey, meteors illuminate the night sky, weaving tales of celestial wonder and shaping the destiny of worlds with their radiant presence.";
-            sf::Text longText;
-            longText.setFont(font);
-            longText.setCharacterSize(12);
-            longText.setFillColor(sf::Color::White);
-            longText.setStyle(sf::Text::Regular);
-            longText.setString(longTextString);
-
-            // Calculate position for the longer text
-            float textX = 20; // X-coordinate
-            longText.setPosition(textX, textY);
-
-            // Wrap the long text
-            sf::FloatRect textRect = longText.getLocalBounds();
-            float maxWidth = window.getSize().x - 2 * textX;
-            if (textRect.width > maxWidth) {
-                std::string textString = longText.getString();
-                std::size_t pos = textString.find_last_of(" ", static_cast<std::size_t>(maxWidth));
-                if (pos != std::string::npos) {
-                    textString.insert(pos + 1, "\n");
-                    longText.setString(textString);
+                    endWindow.clear();
+                    endWindow.draw(unlockedText); // Draw the new myth unlocked message
+                    endWindow.draw(mythText); // Draw the myth text below it
+                    endWindow.display();
                 }
             }
 
-            window.clear(sf::Color::Black); // Clear the window
-            window.draw(mythText); // Draw the first message
-            window.draw(longText); // Draw the longer text
-            window.display();
-            sf::sleep(sf::seconds(2)); // Pause for 2 seconds
-            // continue; // Remove the continue statement
+            if (score >= 500 && !EarthMythAchived) {
+                EarthMythAchived = true;
+
+                // Create a new window for displaying the myth text
+                sf::RenderWindow endWindow(sf::VideoMode(800, 600), "End Window");
+
+                // Create the text object for the new myth unlocked message
+                sf::Text unlockedText;
+                unlockedText.setFont(font);
+                unlockedText.setCharacterSize(24);
+                unlockedText.setFillColor(sf::Color::White);
+                unlockedText.setStyle(sf::Text::Regular);
+                unlockedText.setString("New Myth Unlocked: Earth Myth");
+                // Position the new myth unlocked message at the top center of the window
+                sf::FloatRect unlockedBounds = unlockedText.getLocalBounds();
+                unlockedText.setPosition((endWindow.getSize().x - unlockedBounds.width) / 2.f, 20.f);
+
+                // Create the text object for the myth text
+                sf::Text mythText;
+                mythText.setFont(font);
+                mythText.setCharacterSize(20);
+                mythText.setFillColor(sf::Color::White);
+                mythText.setStyle(sf::Text::Regular);
+                mythText.setString("In the dawn of time, when the universe was but a dream, the Earth emerged—a cradle of life, a sanctuary of wonders. From the whispering forests to the roaring oceans, it whispered secrets of existence to those who dared to listen. In its embrace, mortals found purpose, and gods found solace. The Earth, eternal and ever-giving, remains a testament to the beauty and mystery of creation.");
+
+                // Set maximum width for text wrapping
+                float maxWidth = 780.f; // Adjust according to your window width
+                mythText.setPosition(10.f, 60.f); // Set initial position below the unlocked message
+
+                // Split the text into lines that fit within the maximum width
+                std::string originalString = mythText.getString();
+                std::string wrappedString;
+                sf::Text tempText = mythText;
+                unsigned int charCount = 0;
+                for (char& c : originalString) {
+                    tempText.setString(wrappedString + c);
+                    if (tempText.getLocalBounds().width > maxWidth) {
+                        wrappedString += '\n';
+                    }
+                    wrappedString += c;
+                }
+                mythText.setString(wrappedString);
+
+                // Keep the window open until the user closes it
+                while (endWindow.isOpen()) {
+                    sf::Event event;
+                    while (endWindow.pollEvent(event)) {
+                        if (event.type == sf::Event::Closed) {
+                            endWindow.close();
+                        }
+                    }
+
+                    endWindow.clear();
+                    endWindow.draw(unlockedText); // Draw the new myth unlocked message
+                    endWindow.draw(mythText); // Draw the myth text below it
+                    endWindow.display();
+                }
+            }
+
+            if (score >= 750 && !SunMythAchieved) {
+                SunMythAchieved = true;
+
+                // Create a new window for displaying the myth text
+                sf::RenderWindow endWindow(sf::VideoMode(800, 600), "End Window");
+
+                // Create the text object for the new myth unlocked message
+                sf::Text unlockedText;
+                unlockedText.setFont(font);
+                unlockedText.setCharacterSize(24);
+                unlockedText.setFillColor(sf::Color::White);
+                unlockedText.setStyle(sf::Text::Regular);
+                unlockedText.setString("New Myth Unlocked: Sun Myth");
+                // Position the new myth unlocked message at the top center of the window
+                sf::FloatRect unlockedBounds = unlockedText.getLocalBounds();
+                unlockedText.setPosition((endWindow.getSize().x - unlockedBounds.width) / 2.f, 20.f);
+
+                // Create the text object for the myth text
+                sf::Text mythText;
+                mythText.setFont(font);
+                mythText.setCharacterSize(20);
+                mythText.setFillColor(sf::Color::White);
+                mythText.setStyle(sf::Text::Regular);
+                mythText.setString("In the vast expanse of the celestial canvas, there blazed a radiant orb—the Sun, a divine ember of life and light. From its fiery core, it cast its golden tendrils across the cosmos, bestowing warmth and vitality upon all. With each dawn, it painted the world in hues of amber and gold, guiding the rhythm of existence with its timeless dance. In its luminous embrace, the Sun was more than a celestial body; it was a symbol of hope, a source of eternal light in the tapestry of the universe.");
+
+                // Set maximum width for text wrapping
+                float maxWidth = 780.f; // Adjust according to your window width
+                mythText.setPosition(10.f, 60.f); // Set initial position below the unlocked message
+
+                // Split the text into lines that fit within the maximum width
+                std::string originalString = mythText.getString();
+                std::string wrappedString;
+                sf::Text tempText = mythText;
+                unsigned int charCount = 0;
+                for (char& c : originalString) {
+                    tempText.setString(wrappedString + c);
+                    if (tempText.getLocalBounds().width > maxWidth) {
+                        wrappedString += '\n';
+                    }
+                    wrappedString += c;
+                }
+                mythText.setString(wrappedString);
+
+                // Keep the window open until the user closes it
+                while (endWindow.isOpen()) {
+                    sf::Event event;
+                    while (endWindow.pollEvent(event)) {
+                        if (event.type == sf::Event::Closed) {
+                            endWindow.close();
+                        }
+                    }
+
+                    endWindow.clear();
+                    endWindow.draw(unlockedText); // Draw the new myth unlocked message
+                    endWindow.draw(mythText); // Draw the myth text below it
+                    endWindow.display();
+                }
+            }
+            if (score >= 1000 && !UniversMythAchieved) {
+                UniversMythAchieved = true;
+
+                // Create a new window for displaying the myth text
+                sf::RenderWindow endWindow(sf::VideoMode(800, 600), "End Window");
+
+                // Create the text object for the new myth unlocked message
+                sf::Text unlockedText;
+                unlockedText.setFont(font);
+                unlockedText.setCharacterSize(24);
+                unlockedText.setFillColor(sf::Color::White);
+                unlockedText.setStyle(sf::Text::Regular);
+                unlockedText.setString("New Myth Unlocked: Univers Myth");
+                // Position the new myth unlocked message at the top center of the window
+                sf::FloatRect unlockedBounds = unlockedText.getLocalBounds();
+                unlockedText.setPosition((endWindow.getSize().x - unlockedBounds.width) / 2.f, 20.f);
+
+                // Create the text object for the myth text
+                sf::Text mythText;
+                mythText.setFont(font);
+                mythText.setCharacterSize(20);
+                mythText.setFillColor(sf::Color::White);
+                mythText.setStyle(sf::Text::Regular);
+                mythText.setString("In the ageless expanse, the stars whispered tales of creation. The Great Cosmic Weaver spun galaxies from threads of light, each constellation a chapter in the celestial chronicle. Planets danced to the rhythm of cosmic symphonies, while comets streaked across the canvas of eternity, painting the universe with wonder.");
+
+                // Set maximum width for text wrapping
+                float maxWidth = 780.f; // Adjust according to your window width
+                mythText.setPosition(10.f, 60.f); // Set initial position below the unlocked message
+
+                // Split the text into lines that fit within the maximum width
+                std::string originalString = mythText.getString();
+                std::string wrappedString;
+                sf::Text tempText = mythText;
+                unsigned int charCount = 0;
+                for (char& c : originalString) {
+                    tempText.setString(wrappedString + c);
+                    if (tempText.getLocalBounds().width > maxWidth) {
+                        wrappedString += '\n';
+                    }
+                    wrappedString += c;
+                }
+                mythText.setString(wrappedString);
+
+                // Create a paragraph for additional text
+                sf::Text additionalText;
+                additionalText.setFont(font);
+                additionalText.setCharacterSize(22);
+                additionalText.setFillColor(sf::Color::White);
+                additionalText.setStyle(sf::Text::Regular);
+                additionalText.setString("You are now free to explore space alone as our Professional Astro Voyager.");
+
+                // Set maximum width for text wrapping
+                additionalText.setPosition(10.f, mythText.getPosition().y + mythText.getGlobalBounds().height + 20.f);
+
+                sf::Clock displayTimer;
+                bool displayWindow = true;
+
+                while (displayWindow && endWindow.isOpen()) {
+                    sf::Time elapsedTime = displayTimer.getElapsedTime();
+                    if (elapsedTime >= sf::seconds(1)) {
+                        displayWindow = false;
+                        endWindow.close();
+                    }
+
+                    sf::Event event;
+                    while (endWindow.pollEvent(event)) {
+                        if (event.type == sf::Event::Closed) {
+                            endWindow.close();
+                        }
+                    }
+
+                    endWindow.clear();
+                    endWindow.draw(unlockedText); // Draw the new myth unlocked message
+                    endWindow.draw(mythText); // Draw the myth text below it
+                    endWindow.draw(additionalText); // Draw the additional paragraph
+                    endWindow.display();
+                }
+
+                // Open new window with "You've won" message displayed in green
+                sf::RenderWindow winWindow(sf::VideoMode(800, 600), "Win Screen");
+                sf::Text winText("    You've won!", font, 50);
+                winText.setFillColor(sf::Color::Green);
+                winText.setStyle(sf::Text::Bold);
+                winText.setPosition(200.f, 250.f);
+
+                while (winWindow.isOpen()) {
+                    sf::Event event;
+                    while (winWindow.pollEvent(event)) {
+                        if (event.type == sf::Event::Closed) {
+                            winWindow.close();
+                        }
+                    }
+
+                    winWindow.clear(sf::Color::White);
+                    winWindow.draw(winText);
+                    winWindow.display();
+                }
+                break;
+            }
+
+
+
         }
+
+        std::cout << "Score: " << score << std::endl;
+        return 0;
+
     }
 
-    std::cout << "Score: " << score << std::endl;
-    return 0;
-}
