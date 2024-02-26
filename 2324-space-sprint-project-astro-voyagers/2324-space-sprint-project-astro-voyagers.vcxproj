@@ -134,6 +134,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="2324-space-sprint-project-astro-voyagers.cpp" />
+    <ClCompile Include="LostScreen.cpp" />
+    <ClCompile Include="Texture.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="Texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
