@@ -62,7 +62,7 @@ int main() {
     // Hide the default mouse cursor
     window.setMouseCursorVisible(false);
 
-    if (!texture.loadFromFile("Space.jpg")) {
+    if (!texture.loadFromFile("Background.png")) {
         std::cerr << "Failed to load texture." << std::endl;
         return EXIT_FAILURE;
     }
