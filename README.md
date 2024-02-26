@@ -12,7 +12,7 @@ Players pilot spacecraft through uncharted space, engaging in battles with hosti
 </p>
 <br>
 
-## 🖥 Team	<a name = "team"></a>
+## 🖥 Team
 > 1. **DYPetkov22** - **Scrum trainer**	
    - ***GitHub profile***: [***DYPetkov22***](https://github.com/DYPetkov22)	
  
@@ -23,7 +23,7 @@ Players pilot spacecraft through uncharted space, engaging in battles with hosti
    - ***GitHub profile***: [***NGKulov22***](https://github.com/NGKulov22)
 
 > 4. **NNLibchev22** - **Developer Back-end**	
-   - ***GitHub profile***: [***NNLibchev22***](https://github.com/NNLibchev22)\
+   - ***GitHub profile***: [***NNLibchev22***](https://github.com/NNLibchev22)
 
    <br>
 
@@ -37,13 +37,6 @@ Players pilot spacecraft through uncharted space, engaging in battles with hosti
     <a><img src="https://static-00.iconduck.com/assets.00/github-icon-2048x1988-jzvzcf2t.png" width=48px></a>
    <br>
 
-   ## 🎬 Demo of the project
-    
-   <br>
-
-   ## 📎 Program Diagram:
-
-   <br>
 
    ## ⚙️ Installation	<a name = "installation"></a>
 Open your **CMD** and paste this code:
