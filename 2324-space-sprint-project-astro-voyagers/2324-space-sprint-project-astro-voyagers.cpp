@@ -4,7 +4,8 @@
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Test window");
+    //Open programme window
+    sf::RenderWindow window(sf::VideoMode(800, 600), "AstroVoyagerS");
     window.setFramerateLimit(60);
     bool gameOver = false;
     bool UniversMythAchieved = false;
@@ -15,17 +16,17 @@ int main()
     sf::Texture texture;
     sf::Texture cursorTexture;
     sf::Sprite cursor;
-
+    //Check if all texture load
     if (loadTextures(cursorTexture, cursor, texture, sprite, window) == EXIT_FAILURE) {
         return EXIT_FAILURE;
     }
-
+    //Set meteor texture
     std::vector<Meteor> meteors;
     sf::Texture meteorTexture;
     if (initializeMeteors(meteors, meteorTexture) == EXIT_FAILURE) {
         return EXIT_FAILURE;
     }
-
+    //Set clock
     sf::Clock clock;
     int score = 0;
     sf::Time scoreUpdateInterval;
@@ -36,7 +37,7 @@ int main()
     if (loadFont(font) == EXIT_FAILURE) {
         return EXIT_FAILURE;
     }
-
+    //Display score on screen
 
     sf::Text scoreText;
     scoreText.setFont(font);
@@ -53,7 +54,7 @@ int main()
                 window.close();
             }
         }
-
+        //Spawn meteors with random size
         if (rand() % 50 < 2) {
             float radius = static_cast<float>(rand() % 40) + 20;
             Meteor meteor(radius, meteorTexture);
@@ -69,6 +70,7 @@ int main()
                 it = meteors.erase(it);
             }
             else {
+                //Display LostScreen 
                 if (it->getBounds().intersects(cursor.getGlobalBounds())) {
                     showGameOver(window, "Game Over Score: " + std::to_string(score));
 
